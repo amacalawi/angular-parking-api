@@ -19,3 +19,6 @@ Route::get('reset_password/{token}', ['as' => 'password.reset', function($token)
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('vehicles', 'App\\Api\\V1\\Controllers\\VehicleController@index');
+

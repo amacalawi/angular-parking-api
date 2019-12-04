@@ -14,6 +14,9 @@ $api->version('v1', function (Router $api) {
     $api->group(['middleware' => 'jwt.auth'], function(Router $api) {
         $api->get('events', 'App\\Api\\V1\\Controllers\\EventController@index');
         $api->post('events', 'App\\Api\\V1\\Controllers\\EventController@create');
+
+        $api->get('vehicles', 'App\\Api\\V1\\Controllers\\VehicleController@index');
+        $api->get('customer-types', 'App\\Api\\V1\\Controllers\\CustomerTypeController@index');
     });
 
 });
