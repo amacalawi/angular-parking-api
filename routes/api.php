@@ -15,7 +15,11 @@ $api->version('v1', function (Router $api) {
         $api->get('events', 'App\\Api\\V1\\Controllers\\EventController@index');
         $api->post('events', 'App\\Api\\V1\\Controllers\\EventController@create');
 
-        $api->get('vehicles', 'App\\Api\\V1\\Controllers\\VehicleController@index');
+        $api->get('vehicles/{keywords}', 'App\\Api\\V1\\Controllers\\VehicleController@index');
+        $api->post('vehicles/{id}/find', 'App\\Api\\V1\\Controllers\\VehicleController@find');
+        $api->post('vehicles', 'App\\Api\\V1\\Controllers\\VehicleController@create');
+        $api->post('vehicles/{id}/update', 'App\\Api\\V1\\Controllers\\VehicleController@update');
+
         $api->get('customer-types', 'App\\Api\\V1\\Controllers\\CustomerTypeController@index');
     });
 

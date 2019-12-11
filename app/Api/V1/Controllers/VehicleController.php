@@ -21,9 +21,13 @@ class VehicleController extends Controller
         $this->carbon = $carbon;
     }
 
-    public function index() 
-    {
-        $res = Vehicle::orderBy('id', 'ASC')->get();
+    public function index(Request $request, $keywords) 
+    {   
+        if ($keywords == 'all') {
+            $res = Vehicle::orderBy('id', 'ASC')->get();
+        } else {
+            $res = Vehicle::where('is_active', 1)->orderBy('id', 'ASC')->get();
+        }
 
         return response()
         ->json([
@@ -32,4 +36,64 @@ class VehicleController extends Controller
         ]);
     }
     
+    public function find(Request $request, $id)
+    {   
+        $res = Vehicle::find($id);
+        
+        if (!$res) {
+            throw new NotFoundHttpException();
+        }
+
+        return response()
+        ->json([
+            'status' => 'ok',
+            'data' => $res
+        ]);
+    }   
+
+    public function create(Request $request)
+    {   
+        $res =  Vehicle::create([
+            'code' => $request->input('code'),
+            'name' => $request->input('name'),
+            'description' => $request->input('description'),
+            'created_at' => $this->carbon::now(),
+            'created_by' => Auth::user()->id
+        ]);
+        
+        if (!$res) {
+            throw new NotFoundHttpException();
+        }        
+
+        return response()
+        ->json([
+            'status' => 'ok',
+            'data' => $res
+        ]);
+    }
+    
+    public function update(Request $request, $id)
+    {
+        $res = Vehicle::find($id);
+
+        if(!$res) {
+            throw new NotFoundHttpException();
+        }
+
+        $res->code = $request->input('code');
+        $res->name = $request->input('name') ;
+        $res->description = $request->input('description') ;
+        $res->updated_at = $this->carbon::now();
+        $res->updated_by = Auth::user()->id;
+
+        if ($res->update()) {
+            return response()
+            ->json([
+                'status' => 'ok',
+                'data' => $res
+            ]);
+        } else {
+            throw new NotFoundHttpException();
+        }
+    }
 }
