@@ -25,4 +25,5 @@ $api->version('v1', function (Router $api) {
         $api->get('customer-types', 'App\\Api\\V1\\Controllers\\CustomerTypeController@index');
     });
 
+    $api::get('sample', 'App\\Api\\V1\\Controllers\\EventController@index');
 });

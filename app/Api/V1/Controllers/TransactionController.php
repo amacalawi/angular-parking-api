@@ -28,7 +28,7 @@ class TransactionController extends Controller
             $res = Transaction::orderBy('id', 'ASC')->get();
         } elseif ($keywords == 'all-queued-parking') {
             $res = Transaction::with([
-                'customers' 
+                'customer.type' 
             ])->where([
                 'status' => 'queued',
                 'transaction_type_id' => '1',
@@ -39,10 +39,10 @@ class TransactionController extends Controller
                 return [
                     'id' => $trans->id,
                     'transaction_no' => $trans->transaction_no,
-                    'customer_id' => $trans->customers->id,
-                    'customer_name' => $trans->customers->firstname,
-                    'type' => $trans->customers->customer_type_id,
-                    'color' => CustomerType::where('id', $trans->customers->customer_type_id)->get(['badges_color']),
+                    'customer_id' => $trans->customer->id,
+                    'customer_name' => $trans->customer->firstname,
+                    'type' => $trans->customer->customer_type_id,
+                    'color' => $trans->customer->type->badges_color,
                     'created_at' => $trans->created_at
                 ];
             });
