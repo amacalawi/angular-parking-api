@@ -20,6 +20,8 @@ $api->version('v1', function (Router $api) {
         $api->post('vehicles', 'App\\Api\\V1\\Controllers\\VehicleController@create');
         $api->post('vehicles/{id}/update', 'App\\Api\\V1\\Controllers\\VehicleController@update');
 
+        $api->get('transactions/{keywords}', 'App\\Api\\V1\\Controllers\\TransactionController@index');
+
         $api->get('customer-types', 'App\\Api\\V1\\Controllers\\CustomerTypeController@index');
     });
 
