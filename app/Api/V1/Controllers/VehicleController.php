@@ -11,6 +11,7 @@ use Auth;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use App\Model\Vehicle;
+use App\Model\FixedRate;
 
 class VehicleController extends Controller
 {
@@ -25,6 +26,8 @@ class VehicleController extends Controller
     {   
         if ($keywords == 'all') {
             $res = Vehicle::orderBy('id', 'ASC')->get();
+        } else if ($keywords == 'not-fixed-rate') {
+            $res = Vehicle::whereNotIn('id', FixedRate::get(['vehicle_id']))->where('is_active', 1)->orderBy('id', 'ASC')->get();
         } else {
             $res = Vehicle::where('is_active', 1)->orderBy('id', 'ASC')->get();
         }

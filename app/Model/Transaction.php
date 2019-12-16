@@ -10,8 +10,8 @@ class Transaction extends Model
     
     public $timestamps = false;
 
-    public function customers()
+    public function customer()
     {
-        return $this->belongsTo('App\Model\Customer', 'customer_id' , 'id');
+        return $this->belongsTo('App\Model\Customer', 'customer_id', 'id');
     }
 }
