@@ -23,7 +23,9 @@ $api->version('v1', function (Router $api) {
         $api->get('transactions/{keywords}', 'App\\Api\\V1\\Controllers\\TransactionController@index');
 
         $api->get('customer-types', 'App\\Api\\V1\\Controllers\\CustomerTypeController@index');
+
+        $api->get('fixed-rates/{keywords}', 'App\\Api\\V1\\Controllers\\FixedRateController@index');
     });
 
-    $api::get('sample', 'App\\Api\\V1\\Controllers\\EventController@index');
+    // $api->get('sample', 'App\\Api\\V1\\Controllers\\EventController@index');
 });
