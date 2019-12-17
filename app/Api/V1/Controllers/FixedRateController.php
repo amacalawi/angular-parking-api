@@ -24,9 +24,24 @@ class FixedRateController extends Controller
     public function index(Request $request, $keywords) 
     {   
         if ($keywords == 'all') {
-            $res = FixedRate::orderBy('id', 'ASC')->get();
+            $res = FixedRate::with([
+                'vehicle'
+            ])->orderBy('id', 'ASC')->get();
+
+            $res->map(function($fixrate) {
+                return [
+                    'id' => $fixrate->id,
+                    'vehicle_name' => $fixrate->vehicle->name,
+                    'validity_minute' => $fixrate->validity_minute,
+                    'fixed_rate' => $fixrate->fixed_rate,
+                    'excess_rate_per_minute' => $fixrate->excess_rate_per_minute,
+                    'created_at' => $fixrate->created_at,
+                    'updated_at' => $fixrate->updated_at,
+                    'is_active' => $fixrate->is_active
+                ];
+            });
         } else {
-            $res = FixedRate::where('is_active', 1)->orderBy('id', 'ASC')->get();
+            // $res = FixedRate::where('is_active', 1)->orderBy('id', 'ASC')->get();
         }
 
         return response()
