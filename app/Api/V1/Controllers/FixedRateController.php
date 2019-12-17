@@ -28,7 +28,7 @@ class FixedRateController extends Controller
                 'vehicle'
             ])->orderBy('id', 'ASC')->get();
 
-            $res->map(function($fixrate) {
+            $res = $res->map(function($fixrate) {
                 return [
                     'id' => $fixrate->id,
                     'vehicle_name' => $fixrate->vehicle->name,
@@ -41,7 +41,7 @@ class FixedRateController extends Controller
                 ];
             });
         } else {
-            // $res = FixedRate::where('is_active', 1)->orderBy('id', 'ASC')->get();
+            $res = FixedRate::where('is_active', 1)->orderBy('id', 'ASC')->get();
         }
 
         return response()
@@ -51,64 +51,88 @@ class FixedRateController extends Controller
         ]);
     }
     
-    // public function find(Request $request, $id)
-    // {   
-    //     $res = Vehicle::find($id);
+    public function find(Request $request, $id)
+    {   
+        $res = FixedRate::find($id);
         
-    //     if (!$res) {
-    //         throw new NotFoundHttpException();
-    //     }
+        if (!$res) {
+            throw new NotFoundHttpException();
+        }
 
-    //     return response()
-    //     ->json([
-    //         'status' => 'ok',
-    //         'data' => $res
-    //     ]);
-    // }   
+        return response()
+        ->json([
+            'status' => 'ok',
+            'data' => $res
+        ]);
+    }   
 
-    // public function create(Request $request)
-    // {   
-    //     $res =  Vehicle::create([
-    //         'code' => $request->input('code'),
-    //         'name' => $request->input('name'),
-    //         'description' => $request->input('description'),
-    //         'created_at' => $this->carbon::now(),
-    //         'created_by' => Auth::user()->id
-    //     ]);
+    public function create(Request $request)
+    {   
+        $res =  FixedRate::create([
+            'vehicle_id' => $request->input('vehicle_id'),
+            'validity_minute' => $request->input('validity_minute'),
+            'fixed_rate' => $request->input('fixed_rate'),
+            'excess_rate_per_minute' => $request->input('excess_rate_per_minute'),
+            'created_at' => $this->carbon::now(),
+            'created_by' => Auth::user()->id
+        ]);
         
-    //     if (!$res) {
-    //         throw new NotFoundHttpException();
-    //     }        
+        if (!$res) {
+            throw new NotFoundHttpException();
+        }        
 
-    //     return response()
-    //     ->json([
-    //         'status' => 'ok',
-    //         'data' => $res
-    //     ]);
-    // }
+        return response()
+        ->json([
+            'status' => 'ok',
+            'data' => $res
+        ]);
+    }
     
-    // public function update(Request $request, $id)
-    // {
-    //     $res = Vehicle::find($id);
+    public function update(Request $request, $id)
+    {
+        $res = FixedRate::find($id);
 
-    //     if(!$res) {
-    //         throw new NotFoundHttpException();
-    //     }
+        if(!$res) {
+            throw new NotFoundHttpException();
+        }
 
-    //     $res->code = $request->input('code');
-    //     $res->name = $request->input('name') ;
-    //     $res->description = $request->input('description') ;
-    //     $res->updated_at = $this->carbon::now();
-    //     $res->updated_by = Auth::user()->id;
+        $res->code = $request->input('code');
+        $res->name = $request->input('name') ;
+        $res->description = $request->input('description') ;
+        $res->updated_at = $this->carbon::now();
+        $res->updated_by = Auth::user()->id;
 
-    //     if ($res->update()) {
-    //         return response()
-    //         ->json([
-    //             'status' => 'ok',
-    //             'data' => $res
-    //         ]);
-    //     } else {
-    //         throw new NotFoundHttpException();
-    //     }
-    // }
+        if ($res->update()) {
+            return response()
+            ->json([
+                'status' => 'ok',
+                'data' => $res
+            ]);
+        } else {
+            throw new NotFoundHttpException();
+        }
+    }
+
+    public function modify(Request $request, $id)
+    {
+        $res = FixedRate::find($id);
+
+        if(!$res) {
+            throw new NotFoundHttpException();
+        }
+
+        $res->is_active = ($res->is_active == 0) ? 1 : 0;
+        $res->updated_at = $this->carbon::now();
+        $res->updated_by = Auth::user()->id;
+
+        if ($res->update()) {
+            return response()
+            ->json([
+                'status' => 'ok',
+                'data' => $res
+            ]);
+        } else {
+            throw new NotFoundHttpException();
+        }
+    }
 }

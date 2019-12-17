@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use App\Model\Transaction;
 use App\Model\CustomerType;
+use App\Model\Customer;
 
 class TransactionController extends Controller
 {
@@ -35,7 +36,7 @@ class TransactionController extends Controller
                 'is_active' => 1
             ])->orderBy('id', 'ASC')->get();
     
-            $res->map(function($trans) {
+            $res = $res->map(function($trans) {
                 return [
                     'id' => $trans->id,
                     'transaction_no' => $trans->transaction_no,
@@ -55,66 +56,87 @@ class TransactionController extends Controller
             'status' => 'ok',
             'data' => $res
         ]);
-    }
-    
-    public function find(Request $request, $id)
-    {   
-        $res = Transaction::find($id);
-        
-        if (!$res) {
-            throw new NotFoundHttpException();
-        }
-
-        return response()
-        ->json([
-            'status' => 'ok',
-            'data' => $res
-        ]);
     }   
 
-    public function create(Request $request)
-    {   
-        $res =  Transaction::create([
-            'code' => $request->input('code'),
-            'name' => $request->input('name'),
-            'description' => $request->input('description'),
-            'created_at' => $this->carbon::now(),
-            'created_by' => Auth::user()->id
-        ]);
-        
-        if (!$res) {
-            throw new NotFoundHttpException();
-        }        
-
-        return response()
-        ->json([
-            'status' => 'ok',
-            'data' => $res
-        ]);
-    }
-    
-    public function update(Request $request, $id)
+    public function generateTransNo($transType)
     {
-        $res = Transaction::find($id);
+        $now = Carbon::now();
+        $count = Transaction::where([
+            'created_at', 'like', '%'. $now->year .'-'. $now->month .'-'. $now->day .'%',
+            'transaction_type_id' => $transType
+        ])->get()->count();
 
-        if(!$res) {
-            throw new NotFoundHttpException();
+        if ($transType == 1) {
+            $transNo = 'P';
+        } else {
+            $transNo = 'R';
         }
+        
+        $transNo .= '-'.substr( $now->year, -2).''.$now->month.''.$now->day.'-';
 
-        $res->code = $request->input('code');
-        $res->name = $request->input('name') ;
-        $res->description = $request->input('description') ;
-        $res->updated_at = $this->carbon::now();
-        $res->updated_by = Auth::user()->id;
+        if($count < 9)
+        {
+            return $transNo .= '0000'.($count + 1);
+        } 
+        else if($count < 99)
+        {
+            return $transNo .= '000'.($count + 1);
+        }
+        else if($count < 999)
+        {
+            return $transNo .= '00'.($count + 1);
+        }
+        else if($count < 9999)
+        {
+            return $transNo .= '0'.($count + 1);
+        } 
+        else {
+            return $transNo .= ''.($count + 1);
+        }
+    }
 
-        if ($res->update()) {
+    public function create(Request $request, $rfid)
+    {   
+        $res = Customer::where('rfid', $rfid)->get();
+
+        if (!$res) {
             return response()
             ->json([
-                'status' => 'ok',
+                'status' => 'not',
                 'data' => $res
             ]);
         } else {
-            throw new NotFoundHttpException();
+
+            $res = Transaction::with([
+                'customer'
+            ])->where([
+                'status' => 'queued',
+                'customer_id' => Customer::where('rfid', $rfid)->get(['id'])
+            ])->get();
+            
+            if ($res) {
+                return response()
+                ->json([
+                    'status' => 'not',
+                    'data' => $res
+                ]);
+            }
+
+            $trans =  Transaction::create([
+                'customer_id' => $request->input('vehicle_id'),
+                'transaction_type_id' => 1,
+                'transaction_no' => $this->generateTransNo(1),
+                'total_amount' => 0,
+                'status' => 'queued',
+                'created_at' => $this->carbon::now(),
+                'created_by' => 0
+            ]);
+
+            return response()
+            ->json([
+                'status' => 'ok',
+                'data' => $trans
+            ]);
         }
     }
 }
