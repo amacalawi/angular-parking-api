@@ -61,10 +61,9 @@ class TransactionController extends Controller
     public function generateTransNo($transType)
     {
         $now = Carbon::now();
-        $count = Transaction::where([
-            'created_at', 'like', '%'. $now->year .'-'. $now->month .'-'. $now->day .'%',
-            'transaction_type_id' => $transType
-        ])->get()->count();
+        $count = Transaction::where('created_at', 'like', '%'. $now->year .'-'. $now->month .'-'. $now->day .'%')
+        ->where('transaction_type_id', $transType)
+        ->get()->count();
 
         if ($transType == 1) {
             $transNo = 'P';
@@ -96,8 +95,11 @@ class TransactionController extends Controller
     }
 
     public function create(Request $request, $rfid)
-    {   
-        $res = Customer::where('rfid', $rfid)->get();
+    { 
+        $res = Customer::where([
+            'rfid_no' => $rfid,
+            'status' => 'subscribed'   
+        ])->get();
 
         if (!$res) {
             return response()
@@ -111,21 +113,22 @@ class TransactionController extends Controller
                 'customer'
             ])->where([
                 'status' => 'queued',
-                'customer_id' => Customer::where('rfid', $rfid)->get(['id'])
+                'customer_id' => Customer::where('rfid_no', $rfid)->first()->id
             ])->get();
             
-            if ($res) {
+            if ($res->count() > 0) {
                 return response()
                 ->json([
                     'status' => 'not',
                     'data' => $res
                 ]);
             }
-
+           
             $trans =  Transaction::create([
-                'customer_id' => $request->input('vehicle_id'),
+                'customer_id' => Customer::where('rfid_no', $rfid)->first()->id,
                 'transaction_type_id' => 1,
-                'transaction_no' => $this->generateTransNo(1),
+                'payment_type_id' => 1,
+                'transaction_no' => $this->generateTransNo(1),                
                 'total_amount' => 0,
                 'status' => 'queued',
                 'created_at' => $this->carbon::now(),

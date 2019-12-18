@@ -30,6 +30,12 @@ $api->version('v1', function (Router $api) {
         $api->post('fixed-rates', 'App\\Api\\V1\\Controllers\\FixedRateController@create');
         $api->put('fixed-rates/{id}/update', 'App\\Api\\V1\\Controllers\\FixedRateController@update');
         $api->put('fixed-rates/{id}/modify', 'App\\Api\\V1\\Controllers\\FixedRateController@modify');
+
+        $api->get('customers/{keywords}', 'App\\Api\\V1\\Controllers\\CustomerController@index');
+        $api->get('customers/{id}/find', 'App\\Api\\V1\\Controllers\\CustomerController@find');
+        $api->post('customers', 'App\\Api\\V1\\Controllers\\CustomerController@create');
+        $api->put('customers/{id}/update', 'App\\Api\\V1\\Controllers\\CustomerController@update');
+        $api->put('customers/{id}/modify', 'App\\Api\\V1\\Controllers\\CustomerController@modify');
     });
 
     $api->post('transactions/{rfid}/checkin', 'App\\Api\\V1\\Controllers\\TransactionController@create');
