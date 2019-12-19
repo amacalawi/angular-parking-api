@@ -80,11 +80,37 @@ class CustomerController extends Controller
 
     public function create(Request $request)
     {   
+        $search = Customer::where([
+            'rfid_no' => $request->input('rfid_no')
+        ])->get();
+
+        if($search->count() > 0) {
+            return response()
+            ->json([
+                'status' => 'not',
+                'data' => $search->first(),
+                'message' => 
+                [
+                    'info' => 'Oops!',
+                    'text' => 'The rfid no is already exist.', 
+                    'type' => 'error'
+                ]
+            ]);
+        }
+
         $res =  Customer::create([
+            'rfid_no' => $request->input('rfid_no'),
+            'firstname' => $request->input('firstname'),
+            'middlename' => $request->input('middlename'),
+            'lastname' => $request->input('lastname'),
+            'gender' => $request->input('gender'),
+            'birthdate' => date('Y-m-d', strtotime($request->input('birthdate'))),
             'vehicle_id' => $request->input('vehicle_id'),
-            'validity_minute' => $request->input('validity_minute'),
-            'fixed_rate' => $request->input('fixed_rate'),
-            'excess_rate_per_minute' => $request->input('excess_rate_per_minute'),
+            'customer_type_id' => $request->input('customer_type_id'),
+            'payment_type_id' => $request->input('payment_type_id'),
+            'plate_no' => $request->input('plate_no'),
+            'model' => $request->input('model'),
+            'status' => 'entry',
             'created_at' => $this->carbon::now(),
             'created_by' => Auth::user()->id
         ]);
@@ -96,7 +122,13 @@ class CustomerController extends Controller
         return response()
         ->json([
             'status' => 'ok',
-            'data' => $res
+            'data' => $res,
+            'message' => 
+            [
+                'info' => 'Success!',
+                'text' => 'The information has been successfully saved.',
+                'type' => 'success'
+            ]
         ]);
     }
     
@@ -107,10 +139,34 @@ class CustomerController extends Controller
         if(!$res) {
             throw new NotFoundHttpException();
         }
+        
+        $search = Customer::where('rfid_no', $request->input('rfid_no'))->where('id', '!=', $id)->get();
 
-        $res->code = $request->input('code');
-        $res->name = $request->input('name') ;
-        $res->description = $request->input('description') ;
+        if($search->count() > 0) {
+            return response()
+            ->json([
+                'status' => 'not',
+                'data' => $search->first(),
+                'message' => 
+                [
+                    'info' => 'Oops!',
+                    'text' => 'The rfid no is already exist.',
+                    'type' => 'error'
+                ]
+            ]);
+        }
+
+        $res->rfid_no = $request->input('rfid_no');
+        $res->firstname = $request->input('firstname');
+        $res->middlename = $request->input('middlename');
+        $res->lastname = $request->input('lastname');
+        $res->gender = $request->input('gender');
+        $res->birthdate = date('Y-m-d', strtotime($request->input('birthdate')));
+        $res->vehicle_id = $request->input('vehicle_id');
+        $res->customer_type_id = $request->input('customer_type_id');
+        $res->payment_type_id = $request->input('payment_type_id');
+        $res->plate_no = $request->input('plate_no');
+        $res->model = $request->input('model');      
         $res->updated_at = $this->carbon::now();
         $res->updated_by = Auth::user()->id;
 
@@ -118,7 +174,13 @@ class CustomerController extends Controller
             return response()
             ->json([
                 'status' => 'ok',
-                'data' => $res
+                'data' => $res,
+                'message' => 
+                [
+                    'info' => 'Success!',
+                    'text' => 'The information has been successfully saved.',
+                    'type' => 'success'
+                ]
             ]);
         } else {
             throw new NotFoundHttpException();
