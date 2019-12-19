@@ -14,4 +14,9 @@ class Customer extends Model
     {
         return $this->belongsTo('App\Model\CustomerType', 'customer_type_id', 'id');
     }
+
+    public function vehicle()
+    {
+        return $this->belongsTo('App\Model\Vehicle', 'vehicle_id', 'id');
+    }
 }

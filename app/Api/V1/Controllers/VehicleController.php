@@ -39,6 +39,21 @@ class VehicleController extends Controller
         ]);
     }
     
+    public function filter(Request $request, $id)
+    {   
+        $res = Vehicle::whereNotIn('id', FixedRate::where('id', '!=', $id)->get(['vehicle_id']))->where('is_active', 1)->orderBy('id', 'ASC')->get();
+        
+        if (!$res) {
+            throw new NotFoundHttpException();
+        }
+
+        return response()
+        ->json([
+            'status' => 'ok',
+            'data' => $res
+        ]);
+    }   
+
     public function find(Request $request, $id)
     {   
         $res = Vehicle::find($id);
