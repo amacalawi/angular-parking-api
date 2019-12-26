@@ -36,6 +36,8 @@ $api->version('v1', function (Router $api) {
         $api->post('customers', 'App\\Api\\V1\\Controllers\\CustomerController@create');
         $api->put('customers/{id}/update', 'App\\Api\\V1\\Controllers\\CustomerController@update');
         $api->put('customers/{id}/modify', 'App\\Api\\V1\\Controllers\\CustomerController@modify');
+
+        $api->get('subscriptions/{id}/find', 'App\\Api\\V1\\Controllers\\SubscriptionController@find');
     });
 
     $api->post('transactions/{rfid}/checkin', 'App\\Api\\V1\\Controllers\\TransactionController@create');
