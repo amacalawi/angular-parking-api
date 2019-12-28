@@ -17,7 +17,8 @@ class FixedRateController extends Controller
     private $carbon;
 
     public function __construct(Carbon $carbon)
-    {
+    {   
+        date_default_timezone_set('Asia/Manila');
         $this->carbon = $carbon;
     }
 
@@ -35,6 +36,7 @@ class FixedRateController extends Controller
                     'validity_minute' => $fixrate->validity_minute,
                     'fixed_rate' => $fixrate->fixed_rate,
                     'excess_rate_per_minute' => $fixrate->excess_rate_per_minute,
+                    'excess_rate_per_hour' => $fixrate->excess_rate_per_hour,
                     'created_at' => $fixrate->created_at,
                     'updated_at' => $fixrate->updated_at,
                     'is_active' => $fixrate->is_active
@@ -73,6 +75,7 @@ class FixedRateController extends Controller
             'validity_minute' => $request->input('validity_minute'),
             'fixed_rate' => $request->input('fixed_rate'),
             'excess_rate_per_minute' => $request->input('excess_rate_per_minute'),
+            'excess_rate_per_hour' => $request->input('excess_rate_per_hour'),
             'created_at' => $this->carbon::now(),
             'created_by' => Auth::user()->id
         ]);
@@ -96,9 +99,11 @@ class FixedRateController extends Controller
             throw new NotFoundHttpException();
         }
 
-        $res->code = $request->input('code');
-        $res->name = $request->input('name') ;
-        $res->description = $request->input('description') ;
+        $res->vehicle_id = $request->input('vehicle_id');
+        $res->validity_minute = $request->input('validity_minute') ;
+        $res->fixed_rate = $request->input('fixed_rate');
+        $res->excess_rate_per_minute = $request->input('excess_rate_per_minute');
+        $res->excess_rate_per_hour = $request->input('excess_rate_per_hour');
         $res->updated_at = $this->carbon::now();
         $res->updated_by = Auth::user()->id;
 
