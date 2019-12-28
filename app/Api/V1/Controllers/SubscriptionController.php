@@ -11,6 +11,8 @@ use Auth;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use App\Model\Subscription;
+use App\Model\Transaction;
+use App\Model\Customer;
 
 class SubscriptionController extends Controller
 {
@@ -58,5 +60,174 @@ class SubscriptionController extends Controller
             'status' => 'ok',
             'data' => $res
         ]);
-    }   
+    }  
+    
+    public function generateTransNo($transType)
+    {
+        $now = Carbon::now();
+        $count = Transaction::where('created_at', 'like', '%'. $now->year .'-'. $now->month .'-'. $now->day .'%')
+        ->where('transaction_type_id', $transType)
+        ->get()->count();
+
+        if ($transType == 1) {
+            $transNo = 'P';
+        } else {
+            $transNo = 'R';
+        }
+        
+        $transNo .= '-'.substr( $now->year, -2).''.$now->month.''.$now->day.'-';
+
+        if($count < 9)
+        {
+            return $transNo .= '0000'.($count + 1);
+        } 
+        else if($count < 99)
+        {
+            return $transNo .= '000'.($count + 1);
+        }
+        else if($count < 999)
+        {
+            return $transNo .= '00'.($count + 1);
+        }
+        else if($count < 9999)
+        {
+            return $transNo .= '0'.($count + 1);
+        } 
+        else {
+            return $transNo .= ''.($count + 1);
+        }
+    }
+
+    public function create(Request $request, $id, $total_amount)
+    {   
+        $trans =  Transaction::create([
+            'customer_id' => $id,
+            'transaction_type_id' => 2,
+            'payment_type_id' => 1,
+            'transaction_no' => $this->generateTransNo(2),                
+            'total_amount' => $total_amount,
+            'status' => 'queued',
+            'created_at' => $this->carbon::now(),
+            'created_by' => Auth::user()->id
+        ]);
+
+        $res =  Subscription::create([
+            'transaction_id' => $trans->id,
+            'registration_date' => date('Y-m-d', strtotime($request->input('registration_date'))),
+            'expiration_date' => date('Y-m-d', strtotime($request->input('expiration_date'))),
+            'allowance_minute' => $request->input('allowance_minute'),
+            'excess_rate_option' => $request->input('excess_rate_option'),
+            'status' => 'draft',
+            'created_at' => $this->carbon::now(),
+            'created_by' => Auth::user()->id
+        ]);
+        
+        if (!$res) {
+            throw new NotFoundHttpException();
+        }    
+
+        return response()
+        ->json([
+            'status' => 'ok',
+            'data' => $res,
+            'message' => 
+            [
+                'info' => 'Success!',
+                'text' => 'The information has been successfully saved.',
+                'type' => 'success'
+            ]
+        ]);
+    }
+
+    public function update(Request $request, $id, $total_amount)
+    {
+        $res = Subscription::find($id);
+
+        if(!$res) {
+            throw new NotFoundHttpException();
+        }
+
+        $trans = Transaction::find($res->transaction_id);
+        $trans->total_amount = $total_amount;
+        $trans->update();
+
+        $res->registration_date = date('Y-m-d', strtotime($request->input('registration_date')));
+        $res->expiration_date = date('Y-m-d', strtotime($request->input('expiration_date')));
+        $res->allowance_minute = $request->input('allowance_minute');
+        $res->excess_rate_option = $request->input('excess_rate_option');
+        $res->updated_at = $this->carbon::now();
+        $res->updated_by = Auth::user()->id;
+
+        if ($res->update()) {
+            return response()
+            ->json([
+                'status' => 'ok',
+                'data' => $res,
+                'message' => 
+                [
+                    'info' => 'Success!',
+                    'text' => 'The information has been successfully saved.',
+                    'type' => 'success'
+                ]
+            ]);
+        } else {
+            throw new NotFoundHttpException();
+        }
+    }
+
+    public function modify(Request $request, $id)
+    {
+        $res = Subscription::find($id);
+
+        if(!$res) {
+            throw new NotFoundHttpException();
+        }
+
+        $trans = Transaction::find($res->transaction_id);
+        $trans->status = 'completed';
+        $trans->is_paid = '1';
+
+        $cus = Customer::find($trans->customer_id);
+        $cus->status = 'subscribed';
+
+        $res->status = 'valid';
+
+        if ($res->update() && $trans->update() && $cus->update()) {
+            return response()
+            ->json([
+                'status' => 'ok',
+                'data' => $res,
+                'message' => 
+                [
+                    'info' => 'Success!',
+                    'text' => 'The information has been successfully modified.',
+                    'type' => 'success'
+                ]
+            ]);
+        }
+    }
+
+    public function delete(Request $request, $id)
+    {
+        $res = Subscription::find($id);
+
+        if(!$res) {
+            throw new NotFoundHttpException();
+        }
+
+        $trans = Transaction::find($res->transaction_id)->forceDelete();
+        $res->forceDelete();
+
+        return response()
+        ->json([
+            'status' => 'ok',
+            'data' => $res,
+            'message' => 
+            [
+                'info' => 'Success!',
+                'text' => 'The information has been successfully deleted.',
+                'type' => 'success'
+            ]
+        ]);
+    }
 }

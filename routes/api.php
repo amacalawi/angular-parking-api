@@ -38,6 +38,10 @@ $api->version('v1', function (Router $api) {
         $api->put('customers/{id}/modify', 'App\\Api\\V1\\Controllers\\CustomerController@modify');
 
         $api->get('subscriptions/{id}/find', 'App\\Api\\V1\\Controllers\\SubscriptionController@find');
+        $api->post('subscriptions/{id}/{total_amount}/create', 'App\\Api\\V1\\Controllers\\SubscriptionController@create');
+        $api->put('subscriptions/{id}/{total_amount}/update', 'App\\Api\\V1\\Controllers\\SubscriptionController@update');
+        $api->put('subscriptions/{id}/modify', 'App\\Api\\V1\\Controllers\\SubscriptionController@modify');
+        $api->delete('subscriptions/{id}/delete', 'App\\Api\\V1\\Controllers\\SubscriptionController@delete');
     });
 
     $api->post('transactions/{rfid}/checkin', 'App\\Api\\V1\\Controllers\\TransactionController@create');
