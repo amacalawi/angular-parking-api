@@ -11,6 +11,7 @@ use Auth;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use App\Model\Customer;
+use App\Model\FixedRate;
 
 class CustomerController extends Controller
 {
@@ -26,7 +27,7 @@ class CustomerController extends Controller
     {   
         if ($keywords == 'all') {
             $res = Customer::with([
-                'vehicle',
+                'vehicle.fixrate',
                 'type'
             ])->orderBy('id', 'ASC')->get();
 
@@ -47,6 +48,7 @@ class CustomerController extends Controller
                     'plate_no' => $cus->plate_no,
                     'model' => $cus->model,
                     'credits' => $cus->credits,
+                    'fixed_rate' => ($cus->vehicle->fixrate) ? $cus->vehicle->fixrate->fixed_rate : 0,
                     'status' => $cus->status,
                     'created_at' => $cus->created_at,
                     'updated_at' => $cus->updated_at,
@@ -120,9 +122,12 @@ class CustomerController extends Controller
             throw new NotFoundHttpException();
         }        
 
+        $fixedrate = (FixedRate::where('vehicle_id', $request->input('vehicle_id'))->get()->count() > 0) ? (FixedRate::where('vehicle_id', $request->input('vehicle_id'))->first()->fixed_rate) : 0;
+
         return response()
         ->json([
             'status' => 'ok',
+            'fixedrate' => $fixedrate,
             'data' => $res,
             'message' => 
             [
