@@ -42,6 +42,18 @@ $api->version('v1', function (Router $api) {
         $api->put('subscriptions/{id}/{total_amount}/update', 'App\\Api\\V1\\Controllers\\SubscriptionController@update');
         $api->put('subscriptions/{id}/modify', 'App\\Api\\V1\\Controllers\\SubscriptionController@modify');
         $api->delete('subscriptions/{id}/delete', 'App\\Api\\V1\\Controllers\\SubscriptionController@delete');
+
+        $api->get('users/{keywords}', 'App\\Api\\V1\\Controllers\\UserController@index');
+        $api->get('users/{id}/find', 'App\\Api\\V1\\Controllers\\UserController@find');
+        $api->post('users', 'App\\Api\\V1\\Controllers\\UserController@create');
+        $api->put('users/{id}/update', 'App\\Api\\V1\\Controllers\\UserController@update');
+        $api->put('users/{id}/modify', 'App\\Api\\V1\\Controllers\\UserController@modify');
+
+        $api->get('roles/{keywords}', 'App\\Api\\V1\\Controllers\\RoleController@index');
+        $api->get('roles/{id}/find', 'App\\Api\\V1\\Controllers\\RoleController@find');
+        $api->post('roles', 'App\\Api\\V1\\Controllers\\RoleController@create');
+        $api->put('roles/{id}/update', 'App\\Api\\V1\\Controllers\\RoleController@update');
+        $api->put('roles/{id}/modify', 'App\\Api\\V1\\Controllers\\RoleController@modify');
     });
 
     $api->post('transactions/{rfid}/checkin', 'App\\Api\\V1\\Controllers\\TransactionController@create');
