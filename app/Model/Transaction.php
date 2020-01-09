@@ -14,4 +14,14 @@ class Transaction extends Model
     {
         return $this->belongsTo('App\Model\Customer', 'customer_id', 'id');
     }
+
+    public function detail()
+    {
+        return $this->hasOne('App\Model\TransactionDetail', 'transaction_id', 'id');
+    }
+
+    public function type()
+    {
+        return $this->belongsTo('App\Model\TransactionType', 'transaction_type_id', 'id');
+    }
 }
