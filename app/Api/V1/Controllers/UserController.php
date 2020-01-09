@@ -164,9 +164,11 @@ class UserController extends Controller
 
         $res->name = $request->input('name');
         $res->email = $request->input('email');
-        $res->password = $request->input('password');
         $res->updated_at = $timestamp;
         $res->updated_by = Auth::user()->id;
+        if ($res->password != $request->input('password')) {
+            $res->password = $request->input('password');
+        }
 
         UserRole::where('user_id', $res->id)->update([
             'updated_at' => $timestamp,

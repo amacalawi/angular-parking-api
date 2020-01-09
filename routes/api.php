@@ -22,6 +22,9 @@ $api->version('v1', function (Router $api) {
         $api->put('vehicles/{id}/update', 'App\\Api\\V1\\Controllers\\VehicleController@update');
 
         $api->get('transactions/{keywords}', 'App\\Api\\V1\\Controllers\\TransactionController@index');
+        $api->post('transactions/{rfid}/checkin', 'App\\Api\\V1\\Controllers\\TransactionController@checkin');
+        $api->post('transactions/{id}/checkout', 'App\\Api\\V1\\Controllers\\TransactionController@checkout');
+        $api->post('transactions/generate', 'App\\Api\\V1\\Controllers\\TransactionController@generate');
 
         $api->get('customer-types', 'App\\Api\\V1\\Controllers\\CustomerTypeController@index');
 
@@ -56,5 +59,5 @@ $api->version('v1', function (Router $api) {
         $api->put('roles/{id}/modify', 'App\\Api\\V1\\Controllers\\RoleController@modify');
     });
 
-    $api->post('transactions/{rfid}/checkin', 'App\\Api\\V1\\Controllers\\TransactionController@create');
+    $api->post('transactions/{rfid}/auto-checkin', 'App\\Api\\V1\\Controllers\\TransactionController@create');
 });

@@ -189,6 +189,8 @@ class SubscriptionController extends Controller
 
         $cus = Customer::find($trans->customer_id);
         $cus->status = 'subscribed';
+        $cus->allowance_minute = $res->allowance_minute;
+        $cus->excess_rate_option = $res->excess_rate_option;
 
         $res->status = 'valid';
 
