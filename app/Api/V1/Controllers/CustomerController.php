@@ -57,6 +57,31 @@ class CustomerController extends Controller
             });
         } else {
             $res = Customer::where('is_active', 1)->orderBy('id', 'ASC')->get();
+            
+            $res = $res->map(function($cus) {
+                return [
+                    'id' => $cus->id,
+                    'rfid_no' => $cus->rfid_no,
+                    'firstname' => $cus->firstname,
+                    'middlename' => $cus->middlename,
+                    'lastname' => $cus->lastname,
+                    'gender' => $cus->gender,
+                    'address' => $cus->address,
+                    'vehicle_name' => $cus->vehicle->name,
+                    'vehicle_id' => $cus->vehicle_id,
+                    'customer_type' => $cus->type->name,
+                    'customer_type_id' => $cus->customer_type_id,
+                    'payment_type_id' => $cus->payment_type_id,
+                    'plate_no' => $cus->plate_no,
+                    'model' => $cus->model,
+                    'credits' => $cus->credits,
+                    'fixed_rate' => ($cus->vehicle->fixrate) ? $cus->vehicle->fixrate->fixed_rate : 0,
+                    'status' => $cus->status,
+                    'created_at' => $cus->created_at,
+                    'updated_at' => $cus->updated_at,
+                    'is_active' => $cus->is_active
+                ];
+            });
         }
 
         return response()

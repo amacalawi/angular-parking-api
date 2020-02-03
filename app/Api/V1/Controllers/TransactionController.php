@@ -103,8 +103,10 @@ class TransactionController extends Controller
 
         if ($transType == 1) {
             $transNo = 'P';
-        } else {
+        } else if ($transType == 2) {
             $transNo = 'R';
+        } else {
+            $transNo = 'L';
         }
 
         $transNo .= '-'.substr( $now->year, -2).''.$month.''.$day.'-';
@@ -327,16 +329,31 @@ class TransactionController extends Controller
     {   
         $fromDate = date('Y-m-d', strtotime($request->input('start_date'))).' 00:00:00';
         $toDate = date('Y-m-d', strtotime($request->input('end_date'))).' 23:59:59';
-        $res = Transaction::with([
-            'customer.type',
-            'detail.vehicle.fixrate',
-            'type'
-        ])
-        ->whereBetween('created_at', [$fromDate, $toDate])
-        ->where([
-            'status' => 'completed',
-            'is_active' => 1
-        ])->orderBy('id', $request->input('orderby'))->get();
+
+        if ($request->input('type') != 'all') {
+            $res = Transaction::with([
+                'customer.type',
+                'detail.vehicle.fixrate',
+                'type'
+            ])
+            ->whereBetween('created_at', [$fromDate, $toDate])
+            ->where([
+                'status' => 'completed',
+                'is_active' => 1,
+                'transaction_type_id' => $request->input('type'),
+            ])->orderBy('id', $request->input('orderby'))->get();
+        } else {
+            $res = Transaction::with([
+                'customer.type',
+                'detail.vehicle.fixrate',
+                'type'
+            ])
+            ->whereBetween('created_at', [$fromDate, $toDate])
+            ->where([
+                'status' => 'completed',
+                'is_active' => 1,
+            ])->orderBy('id', $request->input('orderby'))->get();
+        }
 
         $res = $res->map(function($trans) {
             return [
@@ -349,9 +366,15 @@ class TransactionController extends Controller
             ];
         });
 
+        $totalAmount = 0;
+        foreach ($res as $ras) {
+            $totalAmount += floatval($ras['total_amount']);
+        }
+
         return response()
         ->json([
             'status' => 'ok',
+            'total_amount' => $totalAmount, //array_sum(array_column($res, 'total_amount')),
             'data' => $res
         ]);
     }

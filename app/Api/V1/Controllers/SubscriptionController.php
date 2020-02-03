@@ -46,6 +46,7 @@ class SubscriptionController extends Controller
                 'total_amount' => $subs->transaction->total_amount,
                 'registration_date' => $subs->registration_date,
                 'expiration_date' => $subs->expiration_date,
+                'subscriber_rate_option' => $subs->subscriber_rate_option,
                 'excess_rate_option' => $subs->excess_rate_option,
                 'allowance_minute' => $subs->allowance_minute,
                 'status' => $subs->status,
@@ -71,8 +72,10 @@ class SubscriptionController extends Controller
 
         if ($transType == 1) {
             $transNo = 'P';
-        } else {
+        } else if ($transType == 2) {
             $transNo = 'R';
+        } else {
+            $transNo = 'L';
         }
         
         $transNo .= '-'.substr( $now->year, -2).''.$now->month.''.$now->day.'-';
@@ -116,6 +119,7 @@ class SubscriptionController extends Controller
             'registration_date' => date('Y-m-d', strtotime($request->input('registration_date'))),
             'expiration_date' => date('Y-m-d', strtotime($request->input('expiration_date'))),
             'allowance_minute' => $request->input('allowance_minute'),
+            'subscriber_rate_option' => $request->input('subscriber_rate_option'),
             'excess_rate_option' => $request->input('excess_rate_option'),
             'status' => 'draft',
             'created_at' => $this->carbon::now(),
@@ -154,6 +158,7 @@ class SubscriptionController extends Controller
         $res->registration_date = date('Y-m-d', strtotime($request->input('registration_date')));
         $res->expiration_date = date('Y-m-d', strtotime($request->input('expiration_date')));
         $res->allowance_minute = $request->input('allowance_minute');
+        $res->subscriber_rate_option = $request->input('subscriber_rate_option');
         $res->excess_rate_option = $request->input('excess_rate_option');
         $res->updated_at = $this->carbon::now();
         $res->updated_by = Auth::user()->id;
@@ -190,6 +195,7 @@ class SubscriptionController extends Controller
         $cus = Customer::find($trans->customer_id);
         $cus->status = 'subscribed';
         $cus->allowance_minute = $res->allowance_minute;
+        $cus->subscriber_rate_option = $res->subscriber_rate_option;
         $cus->excess_rate_option = $res->excess_rate_option;
 
         $res->status = 'valid';
