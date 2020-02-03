@@ -26,13 +26,23 @@ $api->version('v1', function (Router $api) {
         $api->post('transactions/{id}/checkout', 'App\\Api\\V1\\Controllers\\TransactionController@checkout');
         $api->post('transactions/generate', 'App\\Api\\V1\\Controllers\\TransactionController@generate');
 
-        $api->get('customer-types', 'App\\Api\\V1\\Controllers\\CustomerTypeController@index');
+        $api->get('customer-types/{keywords}', 'App\\Api\\V1\\Controllers\\CustomerTypeController@index');
+        $api->get('customer-types/{id}/filter', 'App\\Api\\V1\\Controllers\\CustomerTypeController@filter');
 
         $api->get('fixed-rates/{keywords}', 'App\\Api\\V1\\Controllers\\FixedRateController@index');
         $api->get('fixed-rates/{id}/find', 'App\\Api\\V1\\Controllers\\FixedRateController@find');
         $api->post('fixed-rates', 'App\\Api\\V1\\Controllers\\FixedRateController@create');
         $api->put('fixed-rates/{id}/update', 'App\\Api\\V1\\Controllers\\FixedRateController@update');
         $api->put('fixed-rates/{id}/modify', 'App\\Api\\V1\\Controllers\\FixedRateController@modify');
+
+        $api->post('load-credits/{id}/{amount}/create', 'App\\Api\\V1\\Controllers\\LoadCreditController@create');
+        $api->get('load-credits/{id}', 'App\\Api\\V1\\Controllers\\LoadCreditController@index');
+
+        $api->get('subscription-rates/{keywords}', 'App\\Api\\V1\\Controllers\\SubscriptionRateController@index');
+        $api->get('subscription-rates/{id}/find', 'App\\Api\\V1\\Controllers\\SubscriptionRateController@find');
+        $api->post('subscription-rates', 'App\\Api\\V1\\Controllers\\SubscriptionRateController@create');
+        $api->put('subscription-rates/{id}/update', 'App\\Api\\V1\\Controllers\\SubscriptionRateController@update');
+        $api->put('subscription-rates/{id}/modify', 'App\\Api\\V1\\Controllers\\SubscriptionRateController@modify');
 
         $api->get('customers/{keywords}', 'App\\Api\\V1\\Controllers\\CustomerController@index');
         $api->get('customers/{id}/find', 'App\\Api\\V1\\Controllers\\CustomerController@find');
