@@ -38,7 +38,7 @@ class TransactionController extends Controller
             $res = Transaction::orderBy('id', 'ASC')->get();
         } elseif ($keywords == 'all-queued-parking') {
             $res = Transaction::with([
-                'customer.type',
+                'customer.type.subrate',
                 'detail.vehicle.fixrate' 
             ])->where([
                 'status' => 'queued',
@@ -47,29 +47,61 @@ class TransactionController extends Controller
             ])->orderBy('id', 'ASC')->get();
     
             $res = $res->map(function($trans) {
-                return [
-                    'id' => $trans->id,
-                    'rfid_no' => $trans->customer->rfid_no,
-                    'transaction_no' => $trans->transaction_no,
-                    'customer_id' => $trans->customer->id,
-                    'customer_name' => $trans->customer->firstname,
-                    'customer_type' => $trans->customer->type->name,
-                    'payment_type_id' => $trans->customer->payment_type_id,
-                    'credits' => $trans->customer->credits,
-                    'type' => $trans->customer->customer_type_id,
-                    'color' => $trans->customer->type->badges_color,
-                    'created_at' => $trans->created_at,
-                    'vehicle_id' => $trans->detail->vehicle->id,
-                    'vehicle_name' => $trans->detail->vehicle->name,
-                    'plate_no' => $trans->detail->plate_no,
-                    'model' => $trans->detail->model,
-                    'timed_in' => $trans->detail->timed_in,
-                    'timed_allowance' => $this->convertToHoursMins($trans->customer->allowance_minute, '%02d:%02d'),
-                    'vehicle_rate' => $trans->detail->vehicle->fixrate->fixed_rate,
-                    'validity' => $this->convertToHoursMins($trans->detail->vehicle->fixrate->validity_minute, '%02d:%02d'),
-                    'excess_option' => $trans->customer->excess_rate_option,
-                    'excess_amount_multiplier' => ($trans->customer->excess_rate_option == 'EX_PER_MIN') ? $trans->detail->vehicle->fixrate->excess_rate_per_minute : $trans->detail->vehicle->fixrate->excess_rate_per_hour
-                ];
+                if ($trans->customer->subscriber_rate_option == 'SUB_RATE') {
+                    return [
+                        'id' => $trans->id,
+                        'rfid_no' => $trans->customer->rfid_no,
+                        'transaction_no' => $trans->transaction_no,
+                        'customer_id' => $trans->customer->id,
+                        'customer_name' => $trans->customer->firstname,
+                        'customer_type' => $trans->customer->type->name,
+                        'payment_type_id' => $trans->customer->payment_type_id,
+                        'credits' => $trans->customer->credits,
+                        'type' => $trans->customer->customer_type_id,
+                        'color' => $trans->customer->type->badges_color,
+                        'created_at' => $trans->created_at,
+                        'vehicle_id' => $trans->detail->vehicle->id,
+                        'vehicle_name' => $trans->detail->vehicle->name,
+                        'plate_no' => $trans->detail->plate_no,
+                        'model' => $trans->detail->model,
+                        'timed_in' => $trans->detail->timed_in,
+                        'timed_allowance' => $this->convertToHoursMins($trans->customer->allowance_minute, '%02d:%02d'),
+                        'vehicle_rate' => $trans->customer->type->subrate->subscription_rate,
+                        'validity' => $this->convertToHoursMins(0, '%02d:%02d'),
+                        'excess_option' => $trans->customer->excess_rate_option,
+                        'excess_amount_multiplier' => ($trans->customer->excess_rate_option == 'EX_PER_MIN') ? $trans->customer->type->subrate->excess_rate_per_minute : $trans->customer->type->subrate->excess_rate_per_hour,
+                        'rate_option' => $trans->customer->subscriber_rate_option,
+                        'starting_period' =>  date('H:i', strtotime($trans->customer->type->subrate->starting_period)),
+                        'ending_period' =>  date('H:i', strtotime($trans->customer->type->subrate->ending_period))
+                    ];
+                } else {
+                    return [
+                        'id' => $trans->id,
+                        'rfid_no' => $trans->customer->rfid_no,
+                        'transaction_no' => $trans->transaction_no,
+                        'customer_id' => $trans->customer->id,
+                        'customer_name' => $trans->customer->firstname,
+                        'customer_type' => $trans->customer->type->name,
+                        'payment_type_id' => $trans->customer->payment_type_id,
+                        'credits' => $trans->customer->credits,
+                        'type' => $trans->customer->customer_type_id,
+                        'color' => $trans->customer->type->badges_color,
+                        'created_at' => $trans->created_at,
+                        'vehicle_id' => $trans->detail->vehicle->id,
+                        'vehicle_name' => $trans->detail->vehicle->name,
+                        'plate_no' => $trans->detail->plate_no,
+                        'model' => $trans->detail->model,
+                        'timed_in' => $trans->detail->timed_in,
+                        'timed_allowance' => $this->convertToHoursMins($trans->customer->allowance_minute, '%02d:%02d'),
+                        'vehicle_rate' => $trans->detail->vehicle->fixrate->fixed_rate,
+                        'validity' => $this->convertToHoursMins($trans->detail->vehicle->fixrate->validity_minute, '%02d:%02d'),
+                        'excess_option' => $trans->customer->excess_rate_option,
+                        'excess_amount_multiplier' => ($trans->customer->excess_rate_option == 'EX_PER_MIN') ? $trans->detail->vehicle->fixrate->excess_rate_per_minute : $trans->detail->vehicle->fixrate->excess_rate_per_hour,
+                        'rate_option' => $trans->customer->subscriber_rate_option,
+                        'starting_period' => '00:00',
+                        'ending_period' => '00:00'
+                    ];
+                }
             });
         } else {
             $res = Transaction::where('is_active', 1)->orderBy('id', 'ASC')->get();
