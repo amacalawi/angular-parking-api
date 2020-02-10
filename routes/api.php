@@ -67,7 +67,10 @@ $api->version('v1', function (Router $api) {
         $api->post('roles', 'App\\Api\\V1\\Controllers\\RoleController@create');
         $api->put('roles/{id}/update', 'App\\Api\\V1\\Controllers\\RoleController@update');
         $api->put('roles/{id}/modify', 'App\\Api\\V1\\Controllers\\RoleController@modify');
-    });
 
+        $api->get('dashboard/get-all-sales', 'App\\Api\\V1\\Controllers\\DashboardController@index');
+    });
+    
+    $api->get('dashboard/download-sales', 'App\\Api\\V1\\Controllers\\DashboardController@download');
     $api->post('transactions/{rfid}/auto-checkin', 'App\\Api\\V1\\Controllers\\TransactionController@create');
 });

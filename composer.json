@@ -12,6 +12,7 @@
         "laravel/framework": "5.8.*",
         "laravel/tinker": "^1.0",
         "nesbot/carbon": "^2.21",
+        "phpoffice/phpspreadsheet": "^1.10",
         "tymon/jwt-auth": "1.0.*"
     },
     "require-dev": {

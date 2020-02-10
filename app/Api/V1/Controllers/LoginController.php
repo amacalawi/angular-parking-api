@@ -70,6 +70,7 @@ class LoginController extends Controller
         return response()
             ->json([
                 'status' => 'ok',
+                'name' => $res[0]['name'],
                 'token' => $token,
                 'user_id' => $res[0]['id'],
                 'roles' => $res[0]['roles'],
