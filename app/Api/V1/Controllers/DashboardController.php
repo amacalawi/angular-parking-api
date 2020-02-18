@@ -35,7 +35,7 @@ class DashboardController extends Controller
                 'detail.vehicle.fixrate',
                 'type'
             ])
-            ->where('created_at', 'like', '%' . $day . '%')
+            ->where('updated_at', 'like', '%' . $day . '%')
             ->where([
                 'status' => 'completed',
                 'is_active' => 1,
@@ -58,13 +58,27 @@ class DashboardController extends Controller
 
         $day = date('m', strtotime('-'.$count.' day', strtotime($today)));
 
+        $thisday = Transaction::with([
+            'customer.type',
+            'detail.vehicle.fixrate',
+            'type'
+        ])
+        ->whereYear('updated_at', Carbon::now()->year)
+        ->whereMonth('updated_at', Carbon::now()->month)
+        ->whereDay('updated_at', Carbon::now()->day)
+        ->where([
+            'status' => 'completed',
+            'is_active' => 1,
+        ])->orderBy('id', 'ASC')
+        ->sum('total_amount');
+
         $thismonth = Transaction::with([
             'customer.type',
             'detail.vehicle.fixrate',
             'type'
         ])
-        ->whereYear('created_at', Carbon::now()->year)
-        ->whereMonth('created_at', Carbon::now()->month)
+        ->whereYear('updated_at', Carbon::now()->year)
+        ->whereMonth('updated_at', Carbon::now()->month)
         ->where([
             'status' => 'completed',
             'is_active' => 1,
@@ -76,8 +90,8 @@ class DashboardController extends Controller
             'detail.vehicle.fixrate',
             'type'
         ])
-        ->whereYear('created_at', Carbon::now()->subMonth()->year)
-        ->whereMonth('created_at', Carbon::now()->subMonth()->month)
+        ->whereYear('updated_at', Carbon::now()->subMonth()->year)
+        ->whereMonth('updated_at', Carbon::now()->subMonth()->month)
         ->where([
             'status' => 'completed',
             'is_active' => 1,
@@ -90,6 +104,7 @@ class DashboardController extends Controller
             'data' => $arrs,
             'days' => array_reverse($days),
             'amounts' => array_reverse($amounts),
+            'thisday' => floor(($thisday*100))/100,
             'thismonth' => floor(($thismonth*100))/100,
             'lastmonth' => floor(($lastmonth*100))/100
         ]);
@@ -111,8 +126,8 @@ class DashboardController extends Controller
             'detail.vehicle.fixrate',
             'type'
         ])
-        ->whereYear('created_at', Carbon::now()->subMonth()->year)
-        ->whereMonth('created_at', Carbon::now()->subMonth()->month)
+        ->whereYear('updated_at', Carbon::now()->year)
+        ->whereMonth('updated_at', Carbon::now()->month)
         ->where([
             'status' => 'completed',
             'is_active' => 1,
@@ -125,7 +140,7 @@ class DashboardController extends Controller
                 'transaction_no' => $trans->transaction_no,
                 'type' => $trans->type->name,
                 'customer' => $trans->customer->rfid_no,
-                'transaction_date' => date('d-M-Y', strtotime($trans->created_at)),
+                'transaction_date' => date('d-M-Y', strtotime($trans->updated_at)),
                 'total_amount' => number_format($trans->total_amount, 2)
             ];
         });

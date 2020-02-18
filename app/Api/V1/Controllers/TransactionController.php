@@ -66,7 +66,7 @@ class TransactionController extends Controller
                         'model' => $trans->detail->model,
                         'timed_in' => $trans->detail->timed_in,
                         'timed_allowance' => $this->convertToHoursMins($trans->customer->allowance_minute, '%02d:%02d'),
-                        'vehicle_rate' => $trans->customer->type->subrate->subscription_rate,
+                        'vehicle_rate' => ($trans->customer->excess_rate_option == 'EX_PER_MIN') ? $trans->customer->type->subrate->excess_rate_per_minute : $trans->customer->type->subrate->excess_rate_per_hour,
                         'validity' => $this->convertToHoursMins(0, '%02d:%02d'),
                         'excess_option' => $trans->customer->excess_rate_option,
                         'excess_amount_multiplier' => ($trans->customer->excess_rate_option == 'EX_PER_MIN') ? $trans->customer->type->subrate->excess_rate_per_minute : $trans->customer->type->subrate->excess_rate_per_hour,
@@ -328,6 +328,7 @@ class TransactionController extends Controller
 
         $res->status = 'completed';
         $res->is_paid = 1;
+        $res->is_charges = $request->input('charges');
         $res->payment_type_id = $request->input('payment_method');
         $res->total_amount = $request->input('total_amount');
         $res->total_paid = $request->input('amount_paid');

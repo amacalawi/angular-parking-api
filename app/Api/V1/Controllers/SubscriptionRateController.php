@@ -35,7 +35,7 @@ class SubscriptionRateController extends Controller
                     'customer_type' => $rate->type->name,
                     'starting_period' => date('h:i A', strtotime($rate->starting_period)),
                     'ending_period' => date('h:i A', strtotime($rate->ending_period)),
-                    'subscription_rate' => $rate->subscription_rate,
+                    // 'subscription_rate' => $rate->subscription_rate,
                     'excess_rate_per_minute' => $rate->excess_rate_per_minute,
                     'excess_rate_per_hour' => $rate->excess_rate_per_hour,
                     'created_at' => $rate->created_at,
@@ -75,7 +75,7 @@ class SubscriptionRateController extends Controller
             'customer_type_id' => $request->input('customer_type_id'),
             'starting_period' => date('H:i', strtotime($request->input('starting_period'))),
             'ending_period' => date('H:i', strtotime($request->input('ending_period'))),
-            'subscription_rate' => $request->input('subscription_rate'),
+            // 'subscription_rate' => $request->input('subscription_rate'),
             'excess_rate_per_minute' => $request->input('excess_rate_per_minute'),
             'excess_rate_per_hour' => $request->input('excess_rate_per_hour'),
             'created_at' => $this->carbon::now(),
@@ -104,7 +104,7 @@ class SubscriptionRateController extends Controller
         $res->customer_type_id = $request->input('customer_type_id');
         $res->starting_period = date('H:i', strtotime($request->input('starting_period')));
         $res->ending_period = date('H:i', strtotime($request->input('ending_period')));
-        $res->subscription_rate = $request->input('subscription_rate');
+        // $res->subscription_rate = $request->input('subscription_rate');
         $res->excess_rate_per_minute = $request->input('excess_rate_per_minute');
         $res->excess_rate_per_hour = $request->input('excess_rate_per_hour');
         $res->updated_at = $this->carbon::now();
