@@ -66,6 +66,18 @@ class SubscriptionController extends Controller
     public function generateTransNo($transType)
     {
         $now = Carbon::now();
+        if ($now->month < 10) {
+            $month = '0'.$now->month;
+        } else {
+            $month = $now->month;
+        }
+
+        if ($now->day < 10) {
+            $day = '0'.$now->day;
+        } else {
+            $day = $now->day;
+        }
+        
         $count = Transaction::where('created_at', 'like', '%'. $now->year .'-'. $now->month .'-'. $now->day .'%')
         ->where('transaction_type_id', $transType)
         ->get()->count();
@@ -197,6 +209,8 @@ class SubscriptionController extends Controller
         $cus->allowance_minute = $res->allowance_minute;
         $cus->subscriber_rate_option = $res->subscriber_rate_option;
         $cus->excess_rate_option = $res->excess_rate_option;
+        $res->updated_at = $this->carbon::now();
+        $res->updated_by = Auth::user()->id;
 
         $res->status = 'valid';
 
