@@ -1,3 +1,3 @@
 # ANGULAR PARKING API 
 
-## made in Larave;
+## made in Laravel
